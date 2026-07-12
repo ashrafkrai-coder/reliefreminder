@@ -187,7 +187,7 @@
             </div>
             <h1>Relief Reminder</h1>
             <p class="developer-credit">developed by <a href="#">@ustazashraf</a></p>
-            <button id="installBtn" class="install-btn" onclick="installApp()">⬇ Install Aplikasi</button>
+            <button id="installBtn" class="install-btn" onclick="installApp()" style="display:none;">⬇ Install Aplikasi</button>
         </div>
         
         <div class="card">
@@ -203,6 +203,21 @@
                     <input type="checkbox" id="notificationToggle" onchange="toggleNotification()">
                     <span class="slider"></span>
                 </label>
+            </div>
+        </div>
+        
+        <div class="card" id="todayCard">
+            <div class="card-header">
+                <div class="card-header-icon">📅</div>
+                <div>
+                    <div class="card-title">Hari Ini</div>
+                    <div class="card-subtitle">Tarikh & Masa</div>
+                </div>
+            </div>
+            <div style="padding: 20px 28px 28px; text-align: center;">
+                <div id="todayDate" style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px;">-</div>
+                <div id="todayTime" style="font-size: 24px; font-weight: 600; color: var(--accent-gold); font-variant-numeric: tabular-nums;">-</div>
+                <div id="todayDay" style="font-size: 14px; color: var(--text-muted); margin-top: 6px; text-transform: capitalize;">-</div>
             </div>
         </div>
         
@@ -226,7 +241,7 @@
                         <option value="5">Tingkatan 5</option>
                     </select>
                 </div>
-                <div class="form-group">
+<div class="form-group">
                     <label for="className">Nama Kelas</label>
                     <select id="className" required>
                         <option value="">Pilih Nama Kelas</option>
@@ -241,10 +256,6 @@
                         <option value="PVMA">PVMA</option>
                         <option value="AF">AF</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label for="date">Tarikh</label>
-                    <input type="date" id="date" required>
                 </div>
                 <div class="form-group">
                     <label for="timeSlot">Slot Masa</label>
@@ -317,6 +328,13 @@
             if (installBtn) installBtn.style.display = 'inline-flex';
         });
 
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA installed');
+            const installBtn = document.querySelector('.install-btn');
+            if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
+
         function installApp() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -332,6 +350,17 @@
         function requestNotificationPermission() {
             if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
         }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('todayDate').textContent = now.toLocaleDateString('ms-MY', options);
+            document.getElementById('todayTime').textContent = now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            document.getElementById('todayDay').textContent = now.toLocaleDateString('ms-MY', { weekday: 'long' });
+        }
+
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
 
         function toggleNotification() {
             const toggle = document.getElementById('notificationToggle');
@@ -352,8 +381,11 @@
             const className = document.getElementById('className').value;
             const slotData = document.getElementById('timeSlot').value.split('|');
             
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            
             const schedule = {
-                id: Date.now(), className: `${grade} ${className}`, date: document.getElementById('date').value,
+                id: Date.now(), className: `${grade} ${className}`, date: dateStr,
                 slotNumber: slotData[0], slotDisplay: slotData[1], startTime24: slotData[2],
                 reminder: document.getElementById('reminder').value, notified: false
             };
@@ -362,7 +394,7 @@
             schedules.sort((a, b) => new Date(a.date + ' ' + a.startTime24) - new Date(b.date + ' ' + b.startTime24));
             localStorage.setItem('schedules', JSON.stringify(schedules));
             scheduleNotification(schedule);
-            this.reset(); setTodayDate(); renderSchedules();
+            this.reset(); updateDateTime(); renderSchedules();
             if (navigator.vibrate) navigator.vibrate(10);
             
             const btn = this.querySelector('.primary-btn');
