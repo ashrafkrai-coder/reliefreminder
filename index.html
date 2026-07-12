@@ -71,6 +71,10 @@
             border-radius: 24px; margin-bottom: 24px; border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-md); overflow: hidden; position: relative;
         }
+        .today-display { padding: 8px 28px 28px; text-align: center; }
+        .today-date { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--primary-dark); }
+        .today-time { font-size: 26px; font-weight: 600; color: var(--accent-gold); font-variant-numeric: tabular-nums; margin-top: 4px; }
+        .today-day { font-size: 13px; color: var(--text-muted); margin-top: 8px; letter-spacing: 1px; text-transform: uppercase; }
         .card-header { padding: 24px 28px 16px; display: flex; align-items: center; gap: 12px; }
         .card-header-icon {
             width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
@@ -214,10 +218,10 @@
                     <div class="card-subtitle">Tarikh & Masa</div>
                 </div>
             </div>
-            <div style="padding: 20px 28px 28px; text-align: center;">
-                <div id="todayDate" style="font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px;">-</div>
-                <div id="todayTime" style="font-size: 24px; font-weight: 600; color: var(--accent-gold); font-variant-numeric: tabular-nums;">-</div>
-                <div id="todayDay" style="font-size: 14px; color: var(--text-muted); margin-top: 6px; text-transform: capitalize;">-</div>
+            <div class="today-display">
+                <div id="todayDate" class="today-date">-</div>
+                <div id="todayTime" class="today-time">-</div>
+                <div id="todayDay" class="today-day">-</div>
             </div>
         </div>
         
@@ -399,4 +403,67 @@
             
             const btn = this.querySelector('.primary-btn');
             const orig = btn.textContent;
-            btn.textContent = '✓
+            btn.textContent = '✓ Disimpan';
+            setTimeout(() => { btn.textContent = orig; }, 2000);
+        });
+
+        function renderSchedules() {
+            const list = document.getElementById('scheduleList');
+            if (!schedules.length) {
+                list.innerHTML = `<div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <h4>Tiada Jadual</h4>
+                    <p>Tambah kelas ganti untuk mula</p>
+                </div>`;
+                return;
+            }
+            list.innerHTML = schedules.map(s => `
+                <div class="schedule-item" data-id="${s.id}">
+                    <div class="schedule-info">
+                        <h3>${s.className}</h3>
+                        <div class="schedule-meta">
+                            <span class="date-badge">${formatDate(s.date)}</span>
+                            <span class="slot-badge">${s.slotDisplay}</span>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteSchedule(${s.id})">Padam</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteSchedule(id) {
+            schedules = schedules.filter(s => s.id !== id);
+            localStorage.setItem('schedules', JSON.stringify(schedules));
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'CANCEL_NOTIFICATION', id: id });
+            }
+            renderSchedules();
+        }
+
+        function formatDate(d) {
+            const parts = d.split('-');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function scheduleNotification(schedule) {
+            const reminderMin = parseInt(schedule.reminder) || 5;
+            const slotTime = new Date(schedule.date + ' ' + schedule.startTime24);
+            const reminderTime = slotTime.getTime() - reminderMin * 60000;
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'SCHEDULE_NOTIFICATION',
+                    schedule: schedule,
+                    reminderTime: reminderTime,
+                    id: schedule.id
+                });
+            }
+        }
+
+        function rescheduleAllNotifications() {
+            schedules.forEach(s => scheduleNotification(s));
+        }
+
+        renderSchedules();
+    </script>
+</body>
+</html>

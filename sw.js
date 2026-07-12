@@ -1,4 +1,4 @@
-const CACHE_NAME = 'relief-reminder-premium-v1';
+const CACHE_NAME = 'relief-reminder-premium-v2';
 const urlsToCache = [
     '/',
     '/index.html',
