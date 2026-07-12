@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0F172A">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Relief Reminder">
-    <title>Relief Reminder - Kelas Ganti</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-startup-image" href="icon-512.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="icon-512.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="icon-512.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="icon-512.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -248,27 +251,27 @@
                     <!-- Teks sangat kompak untuk pastikan 1 baris -->
                     <select id="timeSlot" required>
                         <option value="">Pilih Slot Masa</option>
-                        <option value="1|7.30-8.00pg|07:30">1: 7.30-8.00pg</option>
-                        <option value="2|8.00-8.30pg|08:00">2: 8.00-8.30pg</option>
-                        <option value="3|8.30-9.00pg|08:30">3: 8.30-9.00pg</option>
-                        <option value="4|9.00-9.30pg|09:00">4: 9.00-9.30pg</option>
-                        <option value="5|9.30-10.00pg|09:30">5: 9.30-10.00pg</option>
-                        <option value="6|10.00-10.30pg|10:00">6: 10.00-10.30pg</option>
-                        <option value="7|10.30-11.20pg|10:30">7: 10.30-11.20pg</option>
-                        <option value="8|11.20-11.50pg|11:20">8: 11.20-11.50pg</option>
-                        <option value="9|11.50pg-12.20ptg|11:50">9: 11.50pg-12.20ptg</option>
-                        <option value="10|12.20-12.50ptg|12:20">10: 12.20-12.50ptg</option>
-                        <option value="11|12.50ptg-1.20ptg|12:50">11: 12.50ptg-1.20ptg</option>
-                        <option value="12|1.20-1.50ptg|13:20">12: 1.20-1.50ptg</option>
-                        <option value="13|1.50-2.20ptg|13:50">13: 1.50-2.20ptg</option>
+                        <option value="1|7.30-8.00|07:30">1: 7.30-8.00</option>
+                        <option value="2|8.00-8.30|08:00">2: 8.00-8.30</option>
+                        <option value="3|8.30-9.00|08:30">3: 8.30-9.00</option>
+                        <option value="4|9.00-9.30|09:00">4: 9.00-9.30</option>
+                        <option value="5|9.30-10.00|09:30">5: 9.30-10.00</option>
+                        <option value="6|10.00-10.30|10:00">6: 10.00-10.30</option>
+                        <option value="7|10.30-11.20|10:30">7: 10.30-11.20</option>
+                        <option value="8|11.20-11.50|11:20">8: 11.20-11.50</option>
+                        <option value="9|11.50-12.20|11:50">9: 11.50-12.20</option>
+                        <option value="10|12.20-12.50|12:20">10: 12.20-12.50</option>
+                        <option value="11|12.50-1.20|12:50">11: 12.50-1.20</option>
+                        <option value="12|1.20-1.50|13:20">12: 1.20-1.50</option>
+                        <option value="13|1.50-2.20|13:50">13: 1.50-2.20</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="reminder">Ingatan</label>
                     <select id="reminder">
-                        <option value="5">5 minit sebelum</option>
+                        <option value="5" selected>5 minit sebelum</option>
                         <option value="10">10 minit sebelum</option>
-                        <option value="15" selected>15 minit sebelum</option>
+                        <option value="15">15 minit sebelum</option>
                         <option value="30">30 minit sebelum</option>
                         <option value="60">1 jam sebelum</option>
                     </select>
@@ -305,6 +308,25 @@
             navigator.serviceWorker.register('sw.js')
                 .then(reg => { console.log('✅ SW registered'); requestNotificationPermission(); rescheduleAllNotifications(); })
                 .catch(err => console.log('❌ SW failed:', err));
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.querySelector('.install-btn');
+            if (installBtn) installBtn.style.display = 'inline-flex';
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') console.log('✅ User accepted install');
+                    deferredPrompt = null;
+                    const installBtn = document.querySelector('.install-btn');
+                    if (installBtn) installBtn.style.display = 'none';
+                });
+            }
         }
 
         function requestNotificationPermission() {
