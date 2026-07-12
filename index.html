@@ -71,11 +71,12 @@
             border-radius: 24px; margin-bottom: 24px; border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-md); overflow: hidden; position: relative;
         }
-        #todayCard .card-header { padding: 16px 28px 10px; }
-        .today-display { padding: 4px 28px 12px; text-align: center; line-height: 1.25; }
-        .today-date { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--primary-dark); }
-        .today-time { font-size: 14px; font-weight: 600; color: var(--accent-gold); font-variant-numeric: tabular-nums; margin-top: 1px; }
-        .today-day { font-size: 10px; color: var(--text-muted); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+        #todayCard .today-row { padding: 12px 28px; display: flex; align-items: center; gap: 12px; }
+        .today-label { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+        .today-info { margin-left: auto; display: flex; align-items: baseline; gap: 10px; text-align: right; }
+        .today-date { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--primary-dark); }
+        .today-time { font-size: 15px; font-weight: 600; color: var(--accent-gold); font-variant-numeric: tabular-nums; }
+        .today-day { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
         .card-header { padding: 24px 28px 16px; display: flex; align-items: center; gap: 12px; }
         .card-header-icon {
             width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
@@ -211,18 +212,15 @@
             </div>
         </div>
         
-        <div class="card" id="todayCard">
-            <div class="card-header">
+            <div class="card" id="todayCard">
+            <div class="today-row">
                 <div class="card-header-icon">📅</div>
-                <div>
-                    <div class="card-title">Hari Ini</div>
-                    <div class="card-subtitle">Tarikh & Masa</div>
+                <div class="today-label">Hari Ini</div>
+                <div class="today-info">
+                    <span id="todayDate" class="today-date">-</span>
+                    <span id="todayTime" class="today-time">-</span>
+                    <span id="todayDay" class="today-day">-</span>
                 </div>
-            </div>
-            <div class="today-display">
-                <div id="todayDate" class="today-date">-</div>
-                <div id="todayTime" class="today-time">-</div>
-                <div id="todayDay" class="today-day">-</div>
             </div>
         </div>
         
@@ -322,8 +320,20 @@
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-                .then(reg => { console.log('✅ SW registered'); requestNotificationPermission(); rescheduleAllNotifications(); })
+                .then(reg => console.log('✅ SW registered'))
                 .catch(err => console.log('❌ SW failed:', err));
+            navigator.serviceWorker.ready.then(() => {
+                syncNotificationToggle();
+                rescheduleAllNotifications();
+            });
+            let swReloaded = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (swReloaded) return;
+                swReloaded = true;
+                location.reload();
+            });
+        } else {
+            syncNotificationToggle();
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -352,8 +362,43 @@
             }
         }
 
-        function requestNotificationPermission() {
-            if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+        function syncNotificationToggle() {
+            const toggle = document.getElementById('notificationToggle');
+            if (!('Notification' in window)) { toggle.checked = false; toggle.disabled = true; return; }
+            if (Notification.permission === 'granted') {
+                toggle.checked = true;
+                notificationEnabled = true;
+            } else {
+                toggle.checked = false;
+                notificationEnabled = false;
+            }
+        }
+
+        function toggleNotification() {
+            const toggle = document.getElementById('notificationToggle');
+            if (toggle.checked) {
+                if (!('Notification' in window)) { toggle.checked = false; return; }
+                Notification.requestPermission().then(perm => {
+                    if (perm === 'granted') {
+                        notificationEnabled = true;
+                        rescheduleAllNotifications();
+                        navigator.serviceWorker.ready.then(reg =>
+                            reg.showNotification('Relief Reminder Aktif', {
+                                body: 'Notifikasi kelas ganti diaktifkan', icon: 'icon-192.png'
+                            })
+                        );
+                    } else {
+                        toggle.checked = false;
+                        notificationEnabled = false;
+                        alert('Sila benarkan notifikasi untuk menerima ingatan.');
+                    }
+                });
+            } else {
+                notificationEnabled = false;
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    schedules.forEach(s => navigator.serviceWorker.controller.postMessage({ type: 'CANCEL_NOTIFICATION', id: s.id }));
+                }
+            }
         }
 
         function updateDateTime() {
@@ -366,19 +411,6 @@
 
         setInterval(updateDateTime, 1000);
         updateDateTime();
-
-        function toggleNotification() {
-            const toggle = document.getElementById('notificationToggle');
-            notificationEnabled = toggle.checked;
-            if (notificationEnabled) {
-                Notification.requestPermission().then(perm => {
-                    if (perm === 'granted') {
-                        new Notification('Relief Reminder Aktif', { body: 'Notifikasi kelas ganti diaktifkan', icon: 'icon-192.png' });
-                        rescheduleAllNotifications();
-                    } else { toggle.checked = false; notificationEnabled = false; alert('Sila benarkan notifikasi.'); }
-                });
-            }
-        }
 
         document.getElementById('scheduleForm').addEventListener('submit', function(e) {
             e.preventDefault();
