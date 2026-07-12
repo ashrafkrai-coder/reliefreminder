@@ -37,28 +37,28 @@
                               radial-gradient(circle at 80% 80%, rgba(30,41,59,0.06) 0%, transparent 50%);
             pointer-events: none; z-index: 0;
         }
-        .container { max-width: 640px; margin: 0 auto; padding: 40px 24px 60px; position: relative; z-index: 1; }
-        .header { text-align: center; padding: 20px 0 50px; position: relative; }
+        .container { max-width: 640px; margin: 0 auto; padding: 24px 24px 48px; position: relative; z-index: 1; }
+        .header { text-align: center; padding: 12px 0 24px; position: relative; }
         .header::after {
-            content: ''; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+            width: 48px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
         }
         .brand-mark {
-            display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px;
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary-navy)); border-radius: 16px;
-            margin-bottom: 20px; box-shadow: var(--shadow-md), 0 0 0 1px rgba(201,169,97,0.2); position: relative;
+            display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-navy)); border-radius: 12px;
+            margin-bottom: 10px; box-shadow: var(--shadow-md), 0 0 0 1px rgba(201,169,97,0.2); position: relative;
         }
         .brand-mark::before {
-            content: ''; position: absolute; inset: 2px; border-radius: 14px;
+            content: ''; position: absolute; inset: 2px; border-radius: 10px;
             background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark)); opacity: 0.9;
         }
-        .brand-mark svg { position: relative; z-index: 1; width: 28px; height: 28px; color: var(--primary-dark); }
+        .brand-mark svg { position: relative; z-index: 1; width: 20px; height: 20px; color: var(--primary-dark); }
         .header h1 {
-            font-family: 'Playfair Display', serif; color: var(--primary-dark); font-size: 42px;
-            font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; line-height: 1.1;
+            font-family: 'Playfair Display', serif; color: var(--primary-dark); font-size: 28px;
+            font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; line-height: 1.1;
         }
         .header .developer-credit {
-            color: var(--text-muted); font-size: 10px; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 20px; opacity: 0.6;
+            color: var(--text-muted); font-size: 10px; font-weight: 400; letter-spacing: 0.5px; margin-bottom: 12px; opacity: 0.6;
         }
         .header .developer-credit a { color: var(--accent-gold-dark); text-decoration: none; font-weight: 500; }
         .install-btn {
@@ -71,10 +71,11 @@
             border-radius: 24px; margin-bottom: 24px; border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-md); overflow: hidden; position: relative;
         }
-        .today-display { padding: 8px 28px 28px; text-align: center; }
-        .today-date { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--primary-dark); }
-        .today-time { font-size: 26px; font-weight: 600; color: var(--accent-gold); font-variant-numeric: tabular-nums; margin-top: 4px; }
-        .today-day { font-size: 13px; color: var(--text-muted); margin-top: 8px; letter-spacing: 1px; text-transform: uppercase; }
+        #todayCard .card-header { padding: 16px 28px 10px; }
+        .today-display { padding: 4px 28px 12px; text-align: center; line-height: 1.25; }
+        .today-date { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+        .today-time { font-size: 14px; font-weight: 600; color: var(--accent-gold); font-variant-numeric: tabular-nums; margin-top: 1px; }
+        .today-day { font-size: 10px; color: var(--text-muted); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
         .card-header { padding: 24px 28px 16px; display: flex; align-items: center; gap: 12px; }
         .card-header-icon {
             width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark));
@@ -103,7 +104,7 @@
             background-repeat: no-repeat; background-position: right center; padding-right: 24px; cursor: pointer;
         }
         #timeSlot {
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
