@@ -111,8 +111,8 @@ function showNotification(schedule) {
     
     const options = {
         body: `Kelas: ${schedule.className}\nTarikh: ${formattedDate}\nSlot: ${schedule.slotDisplay}`,
-        icon: '/icon-192.png',
-        badge: '/icon-192.png',
+        icon: './icon-192.png',
+        badge: './icon-192.png',
         vibrate: [200, 100, 200, 100, 200],
         tag: `schedule-${schedule.id}`,
         requireInteraction: true,
