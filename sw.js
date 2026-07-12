@@ -1,10 +1,10 @@
 const CACHE_NAME = 'relief-reminder-premium-v4';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/icon-192.png',
-    '/icon-512.png'
+    './',
+    './index.html',
+    './manifest.json',
+    './icon-192.png',
+    './icon-512.png'
 ];
 
 let scheduledNotifications = {};
@@ -57,7 +57,7 @@ self.addEventListener('fetch', event => {
                     });
                     return fetchResponse;
                 }).catch(() => {
-                    return caches.match('/index.html');
+                    return caches.match('./index.html');
                 });
             })
     );
